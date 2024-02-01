@@ -32,7 +32,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ('update', 'partial_update', 'destroy'):
-            return [IsAuthorOrReadOnly()]
+            return (IsAuthorOrReadOnly(),)
         return super().get_permissions()
 
 
@@ -51,7 +51,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ('update', 'partial_update', 'destroy'):
-            return [IsAuthorOrReadOnly()]
+            return (IsAuthorOrReadOnly(),)
         return super().get_permissions()
 
 
