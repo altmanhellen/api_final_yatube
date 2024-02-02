@@ -5,7 +5,7 @@ from posts.models import Comment, Post, Follow, User, Group
 
 
 class PostSerializer(serializers.ModelSerializer):
-    """Сериализатор постов"""
+    """Сериализатор постов."""
 
     author = serializers.SlugRelatedField(
         slug_field='username',
@@ -18,7 +18,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор комментариев"""
+    """Сериализатор комментариев."""
 
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
@@ -27,19 +27,19 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Comment
-        read_only_fields = ('author', 'post',)
+        read_only_fields = ('post',)
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    """Сериализатор сообществ"""
+    """Сериализатор сообществ."""
 
     class Meta:
-        fields = ('__all__')
+        fields = '__all__'
         model = Group
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    """Сериализатор подписок"""
+    """Сериализатор подписок."""
 
     user = serializers.SlugRelatedField(
         read_only=True,
@@ -51,19 +51,18 @@ class FollowSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
 
-    validators = [UniqueTogetherValidator(
-        queryset=Follow.objects.all(),
-        fields=('user', 'following',),
-        message='Вы уже подписаны на этого автора'
-    ), ]
+    class Meta:
+        fields = ('user', 'following',)
+        model = Follow
+        validators = [UniqueTogetherValidator(
+            queryset=Follow.objects.all(),
+            fields=('user', 'following',),
+            message='Вы уже подписаны на этого автора'
+        ), ]
 
-    def validate(self, data):
-        if self.context['request'].user != data.get('following'):
-            return data
+    def validate_following(self, value):
+        if self.context['request'].user != value:
+            return value
         raise serializers.ValidationError(
             'Нельзя подписаться на самого себя'
         )
-
-    class Meta:
-        fields = ('__all__')
-        model = Follow
